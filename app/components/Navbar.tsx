@@ -21,11 +21,16 @@ export default function Navbar() {
           <Link href="/contact" className="navbar-link">
             Contact
           </Link>
-          <Link href="/signup" className="navbar-signup">
-            Sign Up
+          <Link href="/sign-up" className="navbar-signup">
+            Volunteer Sign Up
+          </Link>
+          <Link href="/staff-login" className="navbar-link">
+            Staff Login
           </Link>
         </div>
       </div>
     </nav>
   );
 }
+
+

@@ -1,0 +1,165 @@
+/* app/components/StaffNavbar2.css */
+.staff-navbar {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.staff-navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.staff-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.staff-navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.staff-logo-accent {
+  color: #2563eb;
+}
+
+.staff-badge {
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+.staff-nav-links {
+  display: flex;
+  gap: 24px;
+}
+
+.staff-nav-link {
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 0;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.staff-nav-link:hover {
+  color: #2563eb;
+}
+
+.staff-nav-link.active {
+  color: #2563eb;
+}
+
+.staff-nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2563eb;
+  border-radius: 1px;
+}
+
+.staff-navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.staff-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.staff-logout-btn {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 12px;
+}
+
+.staff-logout-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .staff-navbar-container {
+    padding: 0 16px;
+  }
+  
+  .staff-navbar-left {
+    gap: 20px;
+  }
+  
+  .staff-nav-links {
+    gap: 16px;
+  }
+  
+  .staff-nav-link {
+    font-size: 13px;
+  }
+  
+  .user-details {
+    display: none;
+  }
+}

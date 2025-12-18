@@ -1,147 +1,163 @@
-'use client';
+// app/sign-up/page.tsx
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import './signup.css'
 
-import { useState } from 'react';
-import './Signup.css';
+export default function VolunteerSignUpPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-export default function SignupPage() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [userData, setUserData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    joinDate: '',
-    totalDonations: '$0.00'
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
-  const handleSignUp = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate sign-up
-    setIsSignedIn(true);
-    setUserData({
-      name: 'New User',
-      email: 'newuser@example.com',
-      phone: '',
-      address: '',
-      joinDate: new Date().toLocaleDateString(),
-      totalDonations: '$0.00'
-    });
-  };
+    // Validate
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Save profile changes
-    setIsSignedIn(true);
-  };
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
 
-  if (isSignedIn) {
-    return (
-      <div className="profile-container">
-        <div className="profile-header">
-          <h1>My Profile</h1>
-          <button 
-            className="edit-btn"
-            onClick={() => setIsSignedIn(false)}
-          >
-            Edit Profile
-          </button>
-        </div>
-        
-        <div className="profile-card">
-          <div className="profile-section">
-            <h2>Personal Information</h2>
-            <div className="profile-info">
-              <div className="info-row">
-                <span className="info-label">Name:</span>
-                <span className="info-value">{userData.name}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Email:</span>
-                <span className="info-value">{userData.email}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Phone:</span>
-                <span className="info-value">{userData.phone || 'Not provided'}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Address:</span>
-                <span className="info-value">{userData.address || 'Not provided'}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="profile-section">
-            <h2>Donation History</h2>
-            <div className="profile-info">
-              <div className="info-row">
-                <span className="info-label">Member Since:</span>
-                <span className="info-value">{userData.joinDate}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Total Donated:</span>
-                <span className="info-value highlight">{userData.totalDonations}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    setLoading(true)
+
+    try {
+      // We'll create a volunteer registration endpoint
+      const res = await fetch('/api/volunteers/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          name,
+          phone,
+          role: 'volunteer' // Explicitly set role
+        })
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok) {
+        setSuccess('Volunteer account created successfully! You can now login.')
+        // Clear form
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+        setName('')
+        setPhone('')
+      } else {
+        setError(data.error || 'Registration failed')
+      }
+    } catch (err: any) {
+      setError('Network error. Please try again.')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="signup-container">
-      <h1>Create Your Account</h1>
-      
       <div className="signup-card">
-        <form className="signup-form" onSubmit={handleSignUp}>
+        <h1 className="signup-title">Become a Volunteer</h1>
+        <p className="signup-subtitle">Join donorConnect as a volunteer</p>
+
+        <form onSubmit={handleSubmit} className="signup-form">
           <div className="form-group">
-            <label>Full Name</label>
-            <input 
-              type="text" 
-              placeholder="John Doe" 
-              value={userData.name}
-              onChange={(e) => setUserData({...userData, name: e.target.value})}
-              required 
+            <label htmlFor="name">Full Name *</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your full name"
+              required
             />
           </div>
-          
+
           <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              type="email" 
-              placeholder="john@example.com" 
-              value={userData.email}
-              onChange={(e) => setUserData({...userData, email: e.target.value})}
-              required 
+            <label htmlFor="email">Email *</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
             />
           </div>
-          
+
           <div className="form-group">
-            <label>Password</label>
-            <input type="password" placeholder="••••••••" required />
+            <label htmlFor="phone">Phone Number</label>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="(123) 456-7890"
+            />
           </div>
-          
+
           <div className="form-group">
-            <label>Confirm Password</label>
-            <input type="password" placeholder="••••••••" required />
+            <label htmlFor="password">Password *</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              required
+              minLength={6}
+            />
           </div>
-          
-          <button type="submit" className="signup-btn">
-            Sign Up
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password *</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter your password"
+              required
+              minLength={6}
+            />
+          </div>
+
+          <div className="form-note">
+            <p><small>* Required fields. Staff accounts are created internally.</small></p>
+          </div>
+
+          {error && <div className="signup-error">{error}</div>}
+          {success && <div className="signup-success">{success}</div>}
+
+          <button 
+            type="submit" 
+            className="signup-button"
+            disabled={loading}
+          >
+            {loading ? 'Registering...' : 'Register as Volunteer'}
           </button>
-          
-          <p className="login-prompt">
-            Already have an account?{' '}
-            <button 
-              type="button" 
-              className="demo-btn"
-              onClick={() => setIsSignedIn(true)}
-            >
-              View Profile Demo
-            </button>
-          </p>
+
+          <div className="signup-login">
+            <p>Already have an account? <Link href="/staff-login">Staff Login</Link></p>
+            <p><small>Staff members: Use staff login above</small></p>
+          </div>
         </form>
       </div>
     </div>
-  );
+  )
 }
