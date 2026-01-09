@@ -49,7 +49,7 @@ model Donation {
   donorId    String
   donor      Donor     @relation(fields: [donorId], references: [id], onDelete: Cascade)
   campaignId String?
-  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   createdAt  DateTime  @default(now())
 }
 
