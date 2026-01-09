@@ -56,7 +56,7 @@ export default function StaffDashboard() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     router.push('/staff-login')
-}
+  }
 
   if (!user) {
     return (
@@ -193,10 +193,13 @@ export default function StaffDashboard() {
             <span>🎯</span>
             Create Campaign
             </button>
+            <button className="action-btn" onClick={() => router.push('/staff-login/tasks/')}>
+            <span>✅</span>
+            Add Task
+            </button>
         </div>
         </div>
         </main>   
         </div>
-        )
-        }
-
+  )
+}
