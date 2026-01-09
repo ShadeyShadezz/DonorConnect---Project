@@ -1,30 +1,37 @@
-// prisma/seed-simple.ts
+// prisma/seed.ts
+import { config } from 'dotenv'
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+
+config()
 
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Starting simple seed...')
+  console.log('Starting seed...')
   
-  // Create admin user with plain password (you'll need to change this in production)
+  const hashedPassword = await bcrypt.hash('admin123', 10)
+  
   const user = await prisma.user.upsert({
     where: { email: 'admin@donorconnect.org' },
-    update: {},
+    update: {
+      password: hashedPassword
+    },
     create: {
       email: 'admin@donorconnect.org',
-      password: 'admin123', // You should hash this in a real app
+      password: hashedPassword,
       name: 'Admin User',
       role: 'admin'
     }
   })
   
-  console.log('Created user:', user)
+  console.log('✅ Seeded admin user:', { id: user.id, email: user.email, role: user.role })
 }
 
 main()
   .catch(e => {
     console.error('❌ Seed failed:', e)
-    // No process.exit - Node.js will exit with code 1 automatically
+    process.exit(1)
   })
   .finally(async () => {
     await prisma.$disconnect()
