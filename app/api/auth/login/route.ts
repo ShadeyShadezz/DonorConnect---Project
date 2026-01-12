@@ -15,27 +15,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log(`[AUTH] Login attempt for email: ${email}`);
+
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
+      console.log(`[AUTH] User not found: ${email}`);
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
+
+    console.log(`[AUTH] User found: ${email}, verifying password`);
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
+      console.log(`[AUTH] Password mismatch for user: ${email}`);
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
+    console.log(`[AUTH] Password verified for user: ${email}, generating token`);
+
     const token = generateToken(user.id, user.email);
     const { password: _, ...userWithoutPassword } = user;
+
+    console.log(`[AUTH] Login successful for user: ${email}`);
 
     return NextResponse.json(
       {
@@ -47,7 +57,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('Login error details:', {
+    console.error('[AUTH] Login error details:', {
       message: error?.message,
       code: error?.code,
       stack: error?.stack,

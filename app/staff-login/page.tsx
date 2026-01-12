@@ -17,6 +17,12 @@ export default function StaffLoginPage() {
     setError('');
     setLoading(true);
 
+    if (!email || !password) {
+      setError('Please enter email and password');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -27,21 +33,27 @@ export default function StaffLoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Login failed');
+        setError(data.error || 'Login failed. Please check your credentials.');
+        setLoading(false);
         return;
       }
 
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      if (!data.token || !data.user) {
+        setError('Invalid response from server');
+        setLoading(false);
+        return;
       }
 
-      router.push('/staff-login/dashboard');
-      router.refresh();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      setTimeout(() => {
+        router.push('/staff-login/dashboard');
+        router.refresh();
+      }, 300);
     } catch (err: any) {
       console.error('Login error:', err);
-      setError('Connection error. Please try again.');
-    } finally {
+      setError('Unable to connect to server. Please try again.');
       setLoading(false);
     }
   };
