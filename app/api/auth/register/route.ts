@@ -5,7 +5,8 @@ import { generateToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name } = await request.json();
+    const body = await request.json();
+    const { email, password, name } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -14,50 +15,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User already exists' },
+        { error: 'Email already registered' },
         { status: 400 }
       );
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        name,
+        name: name || null,
       },
     });
 
     const token = generateToken(user.id, user.email);
     const { password: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json({
-      success: true,
-      user: userWithoutPassword,
-      token,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Account created successfully',
+        token,
+        user: userWithoutPassword,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
-    console.error('Registration error:', error);
-    
-    if (error.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'Email already exists' },
-        { status: 400 }
-      );
-    }
+    console.error('Registration error details:', {
+      message: error?.message,
+      code: error?.code,
+      stack: error?.stack,
+    });
 
     return NextResponse.json(
-      { error: 'Unable to process registration. Please try again.' },
+      { error: 'Failed to create account. Please try again.' },
       { status: 500 }
     );
   }

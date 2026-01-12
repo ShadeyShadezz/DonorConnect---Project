@@ -17,7 +17,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/staff/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -26,19 +26,20 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        setError(data.error || 'Login failed');
+        return;
       }
 
-      // Store token
       if (data.token) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
       }
 
-      // Redirect to profile
-      router.push('/profile');
+      router.push('/');
       router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      console.error('Login error:', err);
+      setError('Connection error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -48,12 +49,8 @@ export default function LoginPage() {
     <div className="login-container">
       <div className="login-card">
         <h1 className="login-title">Login to donorConnect</h1>
-        
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+
+        {error && <div className="error-message">{error}</div>}
 
         <form className="login-form" onSubmit={handleLogin}>
           <div className="form-group">
@@ -80,8 +77,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="login-btn"
             disabled={loading}
           >
@@ -93,11 +90,6 @@ export default function LoginPage() {
               Don't have an account?{' '}
               <a href="/signup" className="link">
                 Sign up
-              </a>
-            </p>
-            <p>
-              <a href="/forgot-password" className="link">
-                Forgot password?
               </a>
             </p>
           </div>

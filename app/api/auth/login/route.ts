@@ -5,7 +5,8 @@ import { generateToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -25,8 +26,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -34,34 +35,26 @@ export async function POST(request: NextRequest) {
     }
 
     const token = generateToken(user.id, user.email);
-    
-    // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
-    
-    return NextResponse.json({
-      success: true,
-      user: userWithoutPassword,
-      token,
-    });
-  } catch (error: any) {
-    console.error('Login error:', error);
-    
-    if (error.message?.includes('password')) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
-    }
-    
-    if (error.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
-    }
 
     return NextResponse.json(
-      { error: 'Unable to process login. Please try again.' },
+      {
+        success: true,
+        message: 'Login successful',
+        token,
+        user: userWithoutPassword,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error('Login error details:', {
+      message: error?.message,
+      code: error?.code,
+      stack: error?.stack,
+    });
+
+    return NextResponse.json(
+      { error: 'Failed to process login. Please try again.' },
       { status: 500 }
     );
   }

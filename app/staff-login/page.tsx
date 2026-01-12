@@ -1,45 +1,50 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import './staff-login.css'
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import './staff-login.css';
 
 export default function StaffLoginPage() {
-  const [email, setEmail] = useState('admin@donorconnect.org')
-  const [password, setPassword] = useState('admin123')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
-      const res = await fetch('/api/staff/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      
-      const data = await res.json()
-      
-      if (res.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        // CORRECT PATH: Redirect to dashboard inside staff-login
-        router.push('/staff-login/dashboard/')
-      } else {
-        setError(data.error || 'Login failed')
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Login failed');
+        return;
       }
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+
+      router.push('/staff-login/dashboard');
+      router.refresh();
     } catch (err: any) {
-      setError('Network error. Please try again.')
-      console.error(err)
+      console.error('Login error:', err);
+      setError('Connection error. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="staff-login-container">
@@ -74,24 +79,22 @@ export default function StaffLoginPage() {
 
           {error && <div className="staff-login-error">{error}</div>}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="staff-login-button"
             disabled={loading}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
+
           <div className="staff-login-signup">
-            <p>Don't have an account? <Link href="/sign-up">Sign up here</Link></p>
+            <p>
+              Don't have an account?{' '}
+              <Link href="/staff-register">Register here</Link>
+            </p>
           </div>
         </form>
-
-        <div className="test-credentials">
-          <p><strong>Test Account:</strong></p>
-          <p>Email: admin@donorconnect.org</p>
-          <p>Password: admin123</p>
-        </div>
       </div>
     </div>
-  )
+  );
 }
