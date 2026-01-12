@@ -17,7 +17,7 @@ export default function StaffLoginPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/staff/auth~D/login', {
+      const res = await fetch('/api/staff/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
