@@ -43,10 +43,25 @@ export async function POST(request: NextRequest) {
       user: userWithoutPassword,
       token,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
+    
+    if (error.message?.includes('password')) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Unable to process login. Please try again.' },
       { status: 500 }
     );
   }

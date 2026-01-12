@@ -46,10 +46,18 @@ export async function POST(request: NextRequest) {
       user: userWithoutPassword,
       token,
     }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Registration error:', error);
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Email already exists' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Unable to process registration. Please try again.' },
       { status: 500 }
     );
   }
